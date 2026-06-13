@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choice · Restaurant Parser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #FF7855;
+    --black:  #000000;
+    --white:  #FFFFFF;
+    --grey:   #F5F5F5;
+    --grey2:  #E8E8E8;
+    --text:   #1A1A1A;
+    --muted:  #888888;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--grey);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ──────────────────────────────── */
+  header {
+    background: var(--black);
+    padding: 0 40px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--orange);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900; color: var(--white);
+  }
+  .logo-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+  .logo-text span {
+    color: var(--orange);
+  }
+
+  .header-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── HERO ────────────────────────────────── */
+  .hero {
+    background: var(--black);
+    padding: 48px 40px 40px;
+    border-bottom: 3px solid var(--orange);
+  }
+  .hero-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .hero h1 span { color: var(--orange); }
+  .hero p {
+    font-size: 14px;
+    font-weight: 400;
+    color: #888;
+    max-width: 480px;
+  }
+
+  /* ── CONTAINER ───────────────────────────── */
+  .container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+
+  /* ── SEARCH PANEL ────────────────────────── */
+  .search-panel {
+    background: var(--white);
+    border-radius: 0;
+    padding: 28px 32px;
+    margin-bottom: 2px;
+    border-left: 4px solid var(--orange);
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 160px auto;
+    gap: 16px;
+    align-items: end;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--grey2);
+    border-radius: 0;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    color: var(--black);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .form-group input::placeholder { color: #bbb; font-weight: 400; }
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--orange); }
+
+  .btn-search {
+    height: 46px;
+    padding: 0 28px;
+    background: var(--orange);
+    color: var(--white);
+    border: none;
+    border-radius: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .btn-search:hover { background: #e86a47; }
+  .btn-search:active { transform: scale(0.98); }
+  .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── CITY CHIPS ──────────────────────────── */
+  .chips-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--grey2);
+  }
+  .chips-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-right: 4px;
+  }
+  .chip {
+    padding: 6px 14px;
+    background: var(--grey);
+    color: var(--text);
+    border: 1.5px solid var(--grey2);
+    border-radius: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--orange); color: var(--orange); }
+  .chip.active { background: var(--orange); color: var(--white); border-color: var(--orange); }
+
+  /* ── STATUS ──────────────────────────────── */
+  .status-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: #fff8f6;
+    border-left: 3px solid var(--orange);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .status-bar.show { display: flex; }
+  .status-bar.error { background: #fff5f5; border-color: #e53e3e; color: #c53030; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--orange);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULTS BAR ─────────────────────────── */
+  .results-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0 12px;
+  }
+  .results-bar.show { display: flex; }
+
+  .results-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--black);
+  }
+  .results-count {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 8px;
+  }
+
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-export:hover { background: #333; }
+  .btn-export svg { width: 14px; height: 14px; }
+
+  /* ── TABLE ───────────────────────────────── */
+  .table-wrap {
+    background: var(--white);
+    overflow: hidden;
+    display: none;
+  }
+  .table-wrap.show { display: block; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr { background: var(--black); }
+  thead th {
+    padding: 13px 16px;
+    text-align: left;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  thead th:first-child { color: var(--orange); }
+
+  tbody tr { border-bottom: 1px solid var(--grey); transition: background 0.1s; }
+  tbody tr:hover { background: #fff8f6; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 12px 16px; vertical-align: middle; color: var(--text); }
+  td:first-child { color: var(--muted); font-size: 11px; font-weight: 600; }
+
+  .cell-name { font-weight: 700; font-size: 13px; }
+  .cell-addr { font-size: 12px; color: var(--muted); font-weight: 400; max-width: 200px; }
+
+  .tag {
+    display: inline-block;
+    padding: 3px 9px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tag-cuisine { background: var(--grey); color: var(--text); }
+  .tag-platform { background: var(--orange); color: var(--white); }
+
+  .rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .star { color: var(--orange); }
+  .rev-count { font-size: 10px; color: var(--muted); font-weight: 400; }
+
+  a.link {
+    color: var(--orange);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  a.link:hover { text-decoration: underline; }
+
+  .empty {
+    text-align: center;
+    padding: 64px 20px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .empty strong { display: block; font-size: 32px; margin-bottom: 8px; color: var(--grey2); }
+
+  /* ── STATS ROW ───────────────────────────── */
+  .stats-row {
+    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+  .stats-row.show { display: grid; }
+  .stat-box {
+    background: var(--white);
+    padding: 20px 24px;
+    border-top: 3px solid transparent;
+  }
+  .stat-box.accent { border-top-color: var(--orange); }
+  .stat-val {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--black);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .stat-val span { color: var(--orange); }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 800px) {
+    .container { padding: 20px; }
+    .hero { padding: 32px 20px; }
+    header { padding: 0 20px; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .btn-search { grid-column: 1 / -1; height: 44px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">C</div>
+    <div class="logo-text">choice <span>·</span> parser</div>
+  </div>
+  <div class="header-tag">Restaurant Intelligence</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Lead Generation Tool</div>
+  <h1>Знайди заклади.<br><span>Виграй клієнтів.</span></h1>
+  <p>Парсинг ресторанів з Google Maps — назва, адреса, телефон, сайт, Instagram, рейтинг, кухня.</p>
+</div>
+
+<div class="container">
+
+  <!-- SEARCH PANEL -->
+  <div class="search-panel">
+    <div class="panel-title">Пошук закладів</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Місто</label>
+        <input id="cityInput" type="text" placeholder="Warsaw, Kyiv, Prague...">
+      </div>
+      <div class="form-group">
+        <label>Категорія</label>
+        <select id="categorySelect">
+          <option value="restaurants">Ресторани</option>
+          <option value="cafe">Кафе</option>
+          <option value="bar">Бари</option>
+          <option value="pizza restaurant">Піцерії</option>
+          <option value="sushi restaurant">Суші</option>
+          <option value="bakery">Пекарні</option>
+          <option value="fast food restaurant">Фастфуд</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Кількість</label>
+        <select id="limitSelect">
+          <option value="20">20</option>
+          <option value="40">40</option>
+          <option value="60">60 (макс)</option>
+        </select>
+      </div>
+      <button class="btn-search" id="searchBtn" onclick="runSearch()">Шукати →</button>
+    </div>
+
+    <div class="chips-row">
+      <span class="chips-label">Ринки Choice:</span>
+      <div class="chip" onclick="setCity('Warsaw')">Warsaw</div>
+      <div class="chip" onclick="setCity('Kraków')">Kraków</div>
+      <div class="chip" onclick="setCity('Kyiv')">Kyiv</div>
+      <div class="chip" onclick="setCity('Prague')">Prague</div>
+      <div class="chip" onclick="setCity('Riga')">Riga</div>
+      <div class="chip" onclick="setCity('Tallinn')">Tallinn</div>
+      <div class="chip" onclick="setCity('Vilnius')">Vilnius</div>
+      <div class="chip" onclick="setCity('Bucharest')">Bucharest</div>
+      <div class="chip" onclick="setCity('Budapest')">Budapest</div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-bar" id="statusBar">
+    <div class="spinner" id="statusSpinner"></div>
+    <span id="statusText"></span>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-box accent">
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-label">Закладів знайдено</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="statPhone">0</div>
+      <div class="stat-label">З телефоном</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="statSite">0</div>
+      <div class="stat-label">З сайтом</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="statIG">0</div>
+      <div class="stat-label">З Instagram</div>
+    </div>
+  </div>
+
+  <!-- RESULTS BAR -->
+  <div class="results-bar" id="resultsBar">
+    <div>
+      <span class="results-title">Результати</span>
+      <span class="results-count" id="countLabel"></span>
+    </div>
+    <button class="btn-export" onclick="exportExcel()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 2v8M4 7l4 4 4-4M2 12h12"/>
+      </svg>
+      Завантажити Excel
+    </button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Назва</th>
+          <th>Адреса</th>
+          <th>Телефон</th>
+          <th>Сайт</th>
+          <th>Instagram</th>
+          <th>Рейтинг</th>
+          <th>Кухня</th>
+          <th>Платформа</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="9" class="empty"><strong>—</strong>Введи місто і натисни «Шукати»</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  let currentResults = [];
+  let currentCity = "";
+
+  function setCity(city) {
+    document.getElementById("cityInput").value = city;
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    event.target.classList.add("active");
+  }
+
+  async function runSearch() {
+    const city     = document.getElementById("cityInput").value.trim();
+    const category = document.getElementById("categorySelect").value;
+    const limit    = document.getElementById("limitSelect").value;
+
+    if (!city) { showStatus("Вкажіть місто", true); return; }
+
+    currentCity = city;
+    setLoading(true);
+    showStatus(`Шукаю «${category}» у ${city}...`);
+    document.getElementById("resultsBar").classList.remove("show");
+    document.getElementById("tableWrap").classList.remove("show");
+    document.getElementById("statsRow").classList.remove("show");
+
+    try {
+      const res  = await fetch("/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ city, category, limit })
+      });
+      const data = await res.json();
+
+      if (!res.ok) { showStatus(data.error || "Помилка сервера", true); return; }
+
+      currentResults = data.results;
+      renderTable(data.results);
+      renderStats(data.results);
+      showStatus(`Готово — знайдено ${data.count} закладів`, false, true);
+
+    } catch (e) {
+      showStatus("Не вдалось підключитись. Переконайся, що app.py запущено.", true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderStats(rows) {
+    document.getElementById("statTotal").textContent = rows.length;
+    document.getElementById("statPhone").textContent = rows.filter(r => r.phone).length;
+    document.getElementById("statSite").textContent  = rows.filter(r => r.website).length;
+    document.getElementById("statIG").textContent    = rows.filter(r => r.instagram).length;
+    document.getElementById("statsRow").classList.add("show");
+  }
+
+  function renderTable(rows) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="9" class="empty"><strong>0</strong>Нічого не знайдено</td></tr>`;
+    } else {
+      rows.forEach((r, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td><div class="cell-name">${esc(r.name)}</div></td>
+          <td><div class="cell-addr">${esc(r.address)}</div></td>
+          <td>${r.phone ? `<a class="link" href="tel:${r.phone}">${esc(r.phone)}</a>` : '<span style="color:#ccc">—</span>'}</td>
+          <td>${r.website ? `<a class="link" href="${r.website}" target="_blank">↗ сайт</a>` : '<span style="color:#ccc">—</span>'}</td>
+          <td>${r.instagram ? `<a class="link" href="${r.instagram}" target="_blank">↗ IG</a>` : '<span style="color:#ccc">—</span>'}</td>
+          <td>${r.rating
+            ? `<span class="rating"><span class="star">★</span>${r.rating} <span class="rev-count">(${r.reviews})</span></span>`
+            : '<span style="color:#ccc">—</span>'}</td>
+          <td>${r.cuisine ? `<span class="tag tag-cuisine">${esc(r.cuisine)}</span>` : '<span style="color:#ccc">—</span>'}</td>
+          <td>${r.platform ? `<span class="tag tag-platform">${esc(r.platform)}</span>` : '<span style="color:#ccc">—</span>'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("countLabel").textContent = `— ${rows.length} закладів`;
+    document.getElementById("resultsBar").classList.add("show");
+    document.getElementById("tableWrap").classList.add("show");
+  }
+
+  async function exportExcel() {
+    const res = await fetch("/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows: currentResults, city: currentCity })
+    });
+    if (!res.ok) { alert("Помилка експорту"); return; }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url;
+    a.download = `choice_parser_${currentCity.toLowerCase().replace(/\s/g,"_")}.xlsx`;
+    a.click();
+  }
+
+  function showStatus(msg, isError = false, autoHide = false) {
+    const bar = document.getElementById("statusBar");
+    document.getElementById("statusText").textContent = msg;
+    document.getElementById("statusSpinner").style.display = isError ? "none" : "block";
+    bar.className = "status-bar show" + (isError ? " error" : "");
+    if (autoHide) setTimeout(() => bar.classList.remove("show"), 2500);
+  }
+
+  function setLoading(on) {
+    const btn = document.getElementById("searchBtn");
+    btn.disabled = on;
+    btn.textContent = on ? "Завантажую..." : "Шукати →";
+  }
+
+  function esc(s) {
+    return String(s || "")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  document.addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+</script>
+</body>
+</html>
